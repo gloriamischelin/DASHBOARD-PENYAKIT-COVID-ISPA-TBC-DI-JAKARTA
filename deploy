@@ -1,0 +1,38 @@
+import streamlit as st
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
+
+st.set_page_config(page_title="Dashboard Penyakit", layout="wide")
+
+st.title("📊 Dashboard Kasus Penyakit di Jakarta")
+
+# Load data
+@st.cache_data
+def load_data():
+    return pd.read_csv("data/kasus_penyakit.csv")  # ganti sesuai nama file
+
+df = load_data()
+
+# Filter by penyakit
+penyakit_list = df['penyakit'].unique().tolist()
+pilih_penyakit = st.selectbox("Pilih Jenis Penyakit", penyakit_list)
+
+# Filter data
+df_filtered = df[df['penyakit'] == pilih_penyakit]
+
+# Tampilkan tabel
+st.subheader(f"Data Kasus: {pilih_penyakit}")
+st.dataframe(df_filtered)
+
+# Tampilkan peta
+st.subheader("Peta Lokasi Kasus")
+m = folium.Map(location=[-6.2, 106.8], zoom_start=10)
+for _, row in df_filtered.iterrows():
+    folium.Marker(
+        location=[row['latitude'], row['longitude']],
+        popup=f"{row['lokasi']}<br>Jumlah: {row['jumlah']}",
+        icon=folium.Icon(color='red')
+    ).add_to(m)
+
+st_folium(m, width=700, height=500)
