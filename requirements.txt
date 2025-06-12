@@ -3,7 +3,5 @@ pandas
 numpy
 folium
 matplotlib
-streamlit
-pandas
-folium
 streamlit-folium
+
